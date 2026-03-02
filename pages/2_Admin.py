@@ -8,6 +8,7 @@ from src.db import (
     upsert_ponto,
     add_necessidade,
     set_ponto_ativo,
+    resolve_db_path,
 )
 from scripts.import_pontos_oficiais import main as import_oficiais
 
@@ -19,7 +20,7 @@ def main() -> None:
         layout="wide",
     )
 
-    db_path = "data/doacao.db"
+    db_path = resolve_db_path()
 
     # ✅ Sempre garante banco + tabelas (Cloud pode abrir direto esta página)
     ensure_db(db_path)

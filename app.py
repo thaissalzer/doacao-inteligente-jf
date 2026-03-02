@@ -1,5 +1,5 @@
 import streamlit as st
-from src.db import ensure_db
+from src.db import ensure_db, resolve_db_path
 from scripts.import_pontos_oficiais import main as import_oficiais
 
 
@@ -279,7 +279,7 @@ def main() -> None:
     _inject_css()
     _sidebar()
 
-    db_path = "data/doacao.db"
+    db_path = resolve_db_path()
     ensure_db(db_path)
     try:
         import_oficiais()

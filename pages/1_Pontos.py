@@ -6,6 +6,7 @@ from src.db import (
     list_necessidades,
     last_update_for_ponto,
     get_ponto,
+    resolve_db_path,
 )
 from src.ui import (
     badge_status,
@@ -19,7 +20,7 @@ from src.ui import (
 def main() -> None:
     st.set_page_config(page_title="Pontos • Doação Inteligente JF", page_icon="📍", layout="wide")
 
-    db_path = "data/doacao.db"
+    db_path = resolve_db_path()
 
     # 🔹 GARANTE QUE O BANCO E TABELAS EXISTEM (mesmo abrindo direto /Pontos)
     ensure_db(db_path)
