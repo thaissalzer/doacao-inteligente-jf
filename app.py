@@ -19,6 +19,48 @@ def _inject_css() -> None:
 /* Layout geral */
 .block-container { padding-top: 2.2rem; }
 
+/* =========================
+   SIDEBAR MAIS EVIDENTE
+   ========================= */
+section[data-testid="stSidebar"]{
+  background: linear-gradient(180deg, #0b1324 0%, #0f1c33 100%);
+  border-right: 1px solid rgba(255,255,255,0.10);
+}
+section[data-testid="stSidebar"] *{
+  color: rgba(255,255,255,0.88);
+}
+.sidebar-title{
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+.sidebar-sub{
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.sidebar-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.86);
+  font-size: 13px;
+  margin-top: 8px;
+}
+.sidebar-link a{
+  color: #47d1c6 !important;
+  text-decoration: none;
+  font-weight: 800;
+}
+.sidebar-link a:hover{
+  text-decoration: underline;
+}
+
 /* Hero */
 .hero {
   background: linear-gradient(135deg, rgba(12,22,38,1) 0%, rgba(13,28,50,1) 55%, rgba(8,16,28,1) 100%);
@@ -146,6 +188,22 @@ def _inject_css() -> None:
     )
 
 
+def _sidebar() -> None:
+    with st.sidebar:
+        st.markdown('<div class="sidebar-title">🌧️ Doação Inteligente JF</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-sub">Direcionando solidariedade com eficiência em Juiz de Fora.</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="sidebar-chip">📍 Pontos • 🔴 URGENTE • ⏰ Atualizações</div>', unsafe_allow_html=True)
+        st.divider()
+
+        st.markdown("**Navegação**")
+        st.caption("Use o menu padrão do Streamlit (Pontos / Admin) ou os botões na home.")
+        st.markdown('<div class="sidebar-link"><a href="https://github.com/thaissalzer/doacao-inteligente-jf" target="_blank">🐙 GitHub do projeto</a></div>', unsafe_allow_html=True)
+
+        st.divider()
+        st.caption("Desenvolvedora: **Thais Salzer Procópio** · @thais_salzer")
+
+
 def _hero() -> None:
     st.markdown(
         """
@@ -219,6 +277,7 @@ def _dev_banner() -> None:
 def main() -> None:
     st.set_page_config(page_title="Doação Inteligente JF", page_icon="🌧️", layout="wide")
     _inject_css()
+    _sidebar()
 
     db_path = "data/doacao.db"
     ensure_db(db_path)
@@ -243,12 +302,14 @@ def main() -> None:
     with col3:
         st.caption("Ou use o menu à esquerda: **Pontos** / **Admin**.")
 
-    # Atalhos (fallback estável)
-    c1, c2 = st.columns(2)
-    with c1:
-        st.page_link("pages/1_Pontos.py", label="📍 Ir para Pontos", icon="📍")
-    with c2:
-        st.page_link("pages/2_Admin.py", label="🔐 Ir para Admin", icon="🔐")
+    # ✅ Atalhos (fallback) só se não houver switch_page
+    if not callable(getattr(st, "switch_page", None)):
+        st.caption("Atalhos (fallback):")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.page_link("pages/1_Pontos.py", label="📍 Ir para Pontos", icon="📍")
+        with c2:
+            st.page_link("pages/2_Admin.py", label="🔐 Ir para Admin", icon="🔐")
 
     st.markdown("")
     _dev_banner()
