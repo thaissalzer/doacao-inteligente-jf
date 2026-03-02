@@ -208,8 +208,8 @@ def _hero() -> None:
     st.markdown(
         """
 <div class="hero">
-  <h1>🌧️ Doação Inteligente JF</h1>
-  <h2>Direcionando solidariedade com eficiência.</h2>
+  <h1>🌧️ Doação Inteligente para JF</h1>
+  <h2>Direcionando solidariedade DE TODO O BRASIL com eficiência.</h2>
   <p>
     Em momentos de tragédia, a vontade de ajudar é enorme.
     O desafio é garantir que cada doação chegue ao lugar certo, no momento certo.
