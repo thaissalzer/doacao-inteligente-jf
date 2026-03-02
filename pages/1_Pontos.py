@@ -124,14 +124,33 @@ def main() -> None:
 
             with top3:
                 maps = google_maps_url(p.endereco)
-                st.link_button("🗺️ Abrir no mapa", maps, use_container_width=True)
+                st.link_button(
+                    "🗺️ Abrir no mapa",
+                    maps,
+                    use_container_width=True,
+                    key=f"map_{p.id}"
+                )
 
-                wa = whatsapp_url(p.contato_whats, text="Olá! Estou conferindo as necessidades do ponto. Pode confirmar o que está precisando agora?")
+                wa = whatsapp_url(
+                    p.contato_whats,
+                    text="Olá! Estou conferindo as necessidades do ponto. Pode confirmar o que está precisando agora?"
+                )
+
                 if wa:
-                    st.link_button("💬 WhatsApp", wa, use_container_width=True)
+                    st.link_button(
+                        "💬 WhatsApp",
+                        wa,
+                        use_container_width=True,
+                        key=f"wa_{p.id}"
+                    )
                 else:
-                    st.button("💬 WhatsApp", disabled=True, use_container_width=True)
-
+                    st.button(
+                        "💬 WhatsApp",
+                        disabled=True,
+                        use_container_width=True,
+                        key=f"wa_disabled_{p.id}"
+                    )
+           
             st.divider()
 
             if not itens:
