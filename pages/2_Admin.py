@@ -1,4 +1,6 @@
 import streamlit as st
+from src.db import ensure_db, list_pontos
+from scripts.import_pontos_oficiais import main as import_oficiais 
 
 from src.auth import login_widget, is_admin_logged_in
 from src.db import (
@@ -10,11 +12,28 @@ from src.db import (
 )
 
 def main() -> None:
-    st.set_page_config(page_title="Admin • Doação Inteligente JF", page_icon="🔐", layout="wide")
+    st.set_page_config(
+        page_title="Admin • Doação Inteligente JF",
+        page_icon="🔐",
+        layout="wide"
+    )
+
     db_path = "data/doacao.db"
+
+    # 🔹 GARANTE QUE O BANCO E TABELAS EXISTEM
+    from src.db import ensure_db
+    ensure_db(db_path)
+
+    # 🔹 GARANTE QUE OS PONTOS OFICIAIS ESTEJAM CARREGADOS
+    try:
+        from scripts.import_pontos_oficiais import main as import_oficiais
+        import_oficiais()
+    except Exception:
+        pass  # evita quebrar se algo já existir
 
     st.title("🔐 Área Admin")
     st.caption("Acesso restrito para cadastrar pontos e atualizar necessidades.")
+
     login_widget()
 
     if not is_admin_logged_in():

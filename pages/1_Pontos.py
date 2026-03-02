@@ -8,6 +8,17 @@ def main() -> None:
 
     db_path = "data/doacao.db"
 
+    # 🔹 GARANTE QUE O BANCO E TABELAS EXISTEM (mesmo abrindo direto /Pontos)
+    from src.db import ensure_db
+    ensure_db(db_path)
+
+    # 🔹 GARANTE QUE OS PONTOS OFICIAIS ESTEJAM CARREGADOS (no Cloud principalmente)
+    try:
+        from scripts.import_pontos_oficiais import main as import_oficiais
+        import_oficiais()
+    except Exception:
+        pass
+
     st.title("📍 Pontos de doação e necessidades")
 
     pontos = list_pontos(db_path, only_active=True)
@@ -15,15 +26,24 @@ def main() -> None:
         st.warning("Nenhum ponto ativo cadastrado ainda.")
         return
 
+    rotulo_para_id = {f"{p.nome} — {p.bairro}": p.id for p in pontos}
+    rotulos_ordenados = sorted(rotulo_para_id.keys())
+
     # --- Filtros
     st.sidebar.header("Filtros")
+    pontos_selecionados = st.sidebar.multiselect(
+    "Pontos de coleta",
+    options=rotulos_ordenados,
+    default=[],
+    help="Selecione 1 ou mais pontos. Vazio = mostra todos."
+)
     categorias = ["Todas", "Água", "Alimentos", "Higiene", "Limpeza", "Roupas", "Fraldas", "Outros"]
     status_opts = ["Todos", "URGENTE", "PRECISA", "OK"]
 
     filtro_cat = st.sidebar.selectbox("Categoria", categorias, index=0)
     filtro_status = st.sidebar.selectbox("Status", status_opts, index=0)
 
-    bairros = sorted({p.bairro for p in pontos})
+    bairros = sorted({p.bairro for p in pontos if p.bairro and p.bairro != "—"})
     filtro_bairro = st.sidebar.selectbox("Bairro/Região", ["Todos"] + bairros, index=0)
 
     max_horas = st.sidebar.slider("Atualizado nas últimas (horas)", min_value=1, max_value=168, value=72)
@@ -58,6 +78,10 @@ def main() -> None:
 
     pontos_filtrados = []
     for p in pontos:
+        if pontos_selecionados:
+            ids_escolhidos = {rotulo_para_id[r] for r in pontos_selecionados}
+            if p.id not in ids_escolhidos:
+                continue
         if filtro_bairro != "Todos" and p.bairro != filtro_bairro:
             continue
         if not within_hours(p.id):
@@ -75,6 +99,8 @@ def main() -> None:
         st.caption("Dica: clique em um ponto para ver detalhes e copiar lista.")
 
     st.divider()
+
+
 
     # --- Lista de cards
     for p in pontos_filtrados:
