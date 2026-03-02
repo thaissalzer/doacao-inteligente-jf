@@ -74,7 +74,7 @@ def _dev_banner() -> None:
     <h2>É Desenvolvedor?</h2>
     <p>Toda ajuda é bem-vinda. Nosso código é aberto. Ajude a acelerar o desenvolvimento dessa ferramenta vital para JF.</p>
     <div class="dev-meta">
-      <strong>Desenvolvedora:</strong> Thais Salzer Procópio • <strong>@thais_salzer</strong>
+      <strong>Desenvolvedora:</strong> Thais Salzer Procópio - Contato: (61)996481533 • <strong>@thais_salzer</strong>
     </div>
   </div>
   <div class="dev-right">
