@@ -1,48 +1,50 @@
 import streamlit as st
-from src.db import ensure_db, list_pontos
-from scripts.import_pontos_oficiais import main as import_oficiais 
 
 from src.auth import login_widget, is_admin_logged_in
 from src.db import (
+    ensure_db,
     Ponto,
     list_pontos,
     upsert_ponto,
     add_necessidade,
     set_ponto_ativo,
 )
+from scripts.import_pontos_oficiais import main as import_oficiais
+
 
 def main() -> None:
     st.set_page_config(
         page_title="Admin • Doação Inteligente JF",
         page_icon="🔐",
-        layout="wide"
+        layout="wide",
     )
 
     db_path = "data/doacao.db"
 
-    # 🔹 GARANTE QUE O BANCO E TABELAS EXISTEM
-    from src.db import ensure_db
+    # ✅ Sempre garante banco + tabelas (Cloud pode abrir direto esta página)
     ensure_db(db_path)
 
-    # 🔹 GARANTE QUE OS PONTOS OFICIAIS ESTEJAM CARREGADOS
+    # ✅ Garante pontos oficiais (upsert: não duplica)
+    # Se der algum erro inesperado, não derruba a área admin
     try:
-        from scripts.import_pontos_oficiais import main as import_oficiais
         import_oficiais()
-    except Exception:
-        pass  # evita quebrar se algo já existir
+    except Exception as e:
+        st.warning(f"Não foi possível importar pontos oficiais agora: {e}")
 
     st.title("🔐 Área Admin")
     st.caption("Acesso restrito para cadastrar pontos e atualizar necessidades.")
 
     login_widget()
-
     if not is_admin_logged_in():
         st.stop()
 
     st.divider()
 
-    tab1, tab2, tab3 = st.tabs(["➕ Cadastrar/Editar ponto", "📝 Atualizar necessidades", "⚙️ Ativar/Desativar ponto"])
+    tab1, tab2, tab3 = st.tabs(
+        ["➕ Cadastrar/Editar ponto", "📝 Atualizar necessidades", "⚙️ Ativar/Desativar ponto"]
+    )
 
+    # ------------------- TAB 1 -------------------
     with tab1:
         st.markdown("### ➕ Cadastrar/Editar ponto")
         st.info("Use um ID simples (ex: `ponto_centro_1`). Se já existir, será atualizado.")
@@ -79,6 +81,7 @@ def main() -> None:
                 upsert_ponto(db_path, ponto)
                 st.success("Ponto salvo/atualizado com sucesso.")
 
+    # ------------------- TAB 2 -------------------
     with tab2:
         st.markdown("### 📝 Atualizar necessidades de um ponto")
 
@@ -87,12 +90,19 @@ def main() -> None:
             st.warning("Nenhum ponto cadastrado.")
         else:
             rotulos = [f"{p.nome} — {p.bairro} ({'Ativo' if p.ativo else 'Inativo'})" for p in pontos]
-            idx = st.selectbox("Escolha o ponto", list(range(len(rotulos))), format_func=lambda i: rotulos[i])
+            idx = st.selectbox(
+                "Escolha o ponto",
+                list(range(len(rotulos))),
+                format_func=lambda i: rotulos[i],
+            )
             ponto = pontos[idx]
 
             colA, colB = st.columns(2)
             with colA:
-                categoria = st.selectbox("Categoria", ["Água", "Alimentos", "Higiene", "Limpeza", "Roupas", "Fraldas", "Outros"])
+                categoria = st.selectbox(
+                    "Categoria",
+                    ["Água", "Alimentos", "Higiene", "Limpeza", "Roupas", "Fraldas", "Outros"],
+                )
                 item = st.text_input("Item", placeholder="Ex: Água mineral 1,5L")
             with colB:
                 status = st.selectbox("Status", ["URGENTE", "PRECISA", "OK"])
@@ -115,8 +125,10 @@ def main() -> None:
                     )
                     st.success("Atualização registrada! (aparece imediatamente na página pública)")
 
+    # ------------------- TAB 3 -------------------
     with tab3:
         st.markdown("### ⚙️ Ativar/Desativar ponto")
+
         pontos = list_pontos(db_path, only_active=False)
         if not pontos:
             st.warning("Nenhum ponto cadastrado.")
@@ -140,5 +152,5 @@ def main() -> None:
                                 set_ponto_ativo(db_path, p.id, True)
                                 st.rerun()
 
-if __name__ == "__main__":
-    main()
+
+main()
