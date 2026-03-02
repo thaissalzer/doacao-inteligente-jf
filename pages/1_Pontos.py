@@ -1,7 +1,20 @@
 import streamlit as st
 
-from src.db import list_pontos, list_necessidades, last_update_for_ponto, get_ponto
-from src.ui import badge_status, human_hours_ago, google_maps_url, whatsapp_url, copyable_list
+from src.db import (
+    ensure_db,
+    list_pontos,
+    list_necessidades,
+    last_update_for_ponto,
+    get_ponto,
+)
+from src.ui import (
+    badge_status,
+    human_hours_ago,
+    google_maps_url,
+    whatsapp_url,
+    copyable_list,
+)
+
 
 def main() -> None:
     st.set_page_config(page_title="Pontos • Doação Inteligente JF", page_icon="📍", layout="wide")
@@ -9,7 +22,6 @@ def main() -> None:
     db_path = "data/doacao.db"
 
     # 🔹 GARANTE QUE O BANCO E TABELAS EXISTEM (mesmo abrindo direto /Pontos)
-    from src.db import ensure_db
     ensure_db(db_path)
 
     # 🔹 GARANTE QUE OS PONTOS OFICIAIS ESTEJAM CARREGADOS (no Cloud principalmente)
@@ -31,12 +43,14 @@ def main() -> None:
 
     # --- Filtros
     st.sidebar.header("Filtros")
+
     pontos_selecionados = st.sidebar.multiselect(
-    "Pontos de coleta",
-    options=rotulos_ordenados,
-    default=[],
-    help="Selecione 1 ou mais pontos. Vazio = mostra todos."
-)
+        "Pontos de coleta",
+        options=rotulos_ordenados,
+        default=[],
+        help="Selecione 1 ou mais pontos. Vazio = mostra todos.",
+    )
+
     categorias = ["Todas", "Água", "Alimentos", "Higiene", "Limpeza", "Roupas", "Fraldas", "Outros"]
     status_opts = ["Todos", "URGENTE", "PRECISA", "OK"]
 
@@ -57,31 +71,33 @@ def main() -> None:
     for n in necessidades:
         by_ponto.setdefault(n.ponto_id, []).append(n)
 
-    # Filtra pontos por bairro e “atualizado nas últimas X horas”
+    # Filtra pontos por “atualizado nas últimas X horas”
     def within_hours(ponto_id: str) -> bool:
         last_upd = last_update_for_ponto(db_path, ponto_id)
         if not last_upd:
             return False
-        # usa a mesma lógica de "human_hours_ago", mas aqui só aproximamos por string → horas via delta no ui
-        # para simplicidade: reaproveita o texto e não filtra com precisão de minutos
-        # (se quiser precisão, eu ajusto para calcular delta em segundos aqui)
+
         txt = human_hours_ago(last_upd)
         if txt == "agora há pouco":
             return True
+
         if txt.startswith("há "):
             try:
                 h = int(txt.replace("há ", "").replace(" horas", "").replace(" hora", ""))
                 return h <= max_horas
             except Exception:
                 return True
+
         return True
 
     pontos_filtrados = []
+    ids_escolhidos = None
+    if pontos_selecionados:
+        ids_escolhidos = {rotulo_para_id[r] for r in pontos_selecionados}
+
     for p in pontos:
-        if pontos_selecionados:
-            ids_escolhidos = {rotulo_para_id[r] for r in pontos_selecionados}
-            if p.id not in ids_escolhidos:
-                continue
+        if ids_escolhidos and p.id not in ids_escolhidos:
+            continue
         if filtro_bairro != "Todos" and p.bairro != filtro_bairro:
             continue
         if not within_hours(p.id):
@@ -96,11 +112,9 @@ def main() -> None:
         urg = sum(1 for n in necessidades if n.status == "URGENTE")
         st.metric("Itens URGENTES (no filtro)", urg)
     with colC:
-        st.caption("Dica: clique em um ponto para ver detalhes e copiar lista.")
+        st.caption("Dica: role a lista e use os filtros na esquerda.")
 
     st.divider()
-
-
 
     # --- Lista de cards
     for p in pontos_filtrados:
@@ -123,34 +137,24 @@ def main() -> None:
                     st.caption(last_upd.replace("T", " ").replace("+", " +"))
 
             with top3:
+                # ✅ Não usar st.link_button com key (na sua versão dá TypeError)
                 maps = google_maps_url(p.endereco)
-                st.link_button(
-                    "🗺️ Abrir no mapa",
-                    maps,
-                    use_container_width=True,
-                    key=f"map_{p.id}"
-                )
+                st.markdown(f"🗺️ **[Abrir no mapa]({maps})**")
 
                 wa = whatsapp_url(
                     p.contato_whats,
                     text="Olá! Estou conferindo as necessidades do ponto. Pode confirmar o que está precisando agora?"
                 )
-
                 if wa:
-                    st.link_button(
-                        "💬 WhatsApp",
-                        wa,
-                        use_container_width=True,
-                        key=f"wa_{p.id}"
-                    )
+                    st.markdown(f"💬 **[WhatsApp]({wa})**")
                 else:
                     st.button(
                         "💬 WhatsApp",
                         disabled=True,
                         use_container_width=True,
-                        key=f"wa_disabled_{p.id}"
+                        key=f"wa_disabled_{p.id}",
                     )
-           
+
             st.divider()
 
             if not itens:
@@ -182,12 +186,9 @@ def main() -> None:
                 to_copy = [f"{badge_status(n.status)} • {n.categoria}: {n.item}" for n in (urgentes + precisa)]
                 copyable_list(to_copy, title="📋 Copiar lista (URGENTE + PRECISA)")
 
-            # Link interno: "detalhe" usando query param
-            st.page_link("pages/1_Pontos.py", label="🔎 Ver detalhe deste ponto (use o seletor acima)", icon="🔎")
-
     st.divider()
 
-    # --- Seletor de detalhe (simples, sem rota)
+    # --- Seletor de detalhe (simples)
     st.markdown("## 🔎 Detalhe de um ponto")
     ponto_map = {f"{p.nome} — {p.bairro}": p.id for p in pontos}
     escolha = st.selectbox("Escolha um ponto para ver detalhes", list(ponto_map.keys()))
@@ -211,7 +212,9 @@ def main() -> None:
     st.markdown("#### Itens cadastrados")
     for n in det_nec:
         extra = f" — {n.observacao}" if n.observacao else ""
-        st.write(f"- {badge_status(n.status)} • **{n.categoria}**: {n.item}{extra} _(atualizado: {n.updated_at})_")
+        st.write(
+            f"- {badge_status(n.status)} • **{n.categoria}**: {n.item}{extra} _(atualizado: {n.updated_at})_"
+        )
 
-if __name__ == "__main__":
-    main()
+
+main()
