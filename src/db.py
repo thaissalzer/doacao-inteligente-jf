@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import sqlite3
 from dataclasses import dataclass
@@ -8,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Iterable, Optional, Sequence
 
 ISO_FMT = "%Y-%m-%dT%H:%M:%S%z"
+DEFAULT_DB_PATH = str(Path("data") / "doacao.db")
 
 
 @dataclass(frozen=True)
@@ -37,8 +37,12 @@ class Necessidade:
 
 def _connect(db_path: str) -> sqlite3.Connection:
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)  # cria pasta data/ se não existir
-    conn = sqlite3.connect(db_path, check_same_thread=False)
+    conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.execute("PRAGMA journal_mode = WAL;")
+    conn.execute("PRAGMA synchronous = NORMAL;")
+    conn.execute("PRAGMA busy_timeout = 30000;")
     return conn
 
 
@@ -100,6 +104,10 @@ def ensure_db(db_path: str) -> None:
         conn.commit()
     finally:
         conn.close()
+
+
+def resolve_db_path(db_path: Optional[str] = None) -> str:
+    return db_path or DEFAULT_DB_PATH
 
 
 def seed_if_empty(db_path: str) -> None:
@@ -186,6 +194,33 @@ def upsert_ponto(db_path: str, ponto: Ponto) -> None:
                 contato_nome=excluded.contato_nome,
                 contato_whats=excluded.contato_whats,
                 ativo=excluded.ativo;
+            """,
+            (
+                ponto.id,
+                ponto.nome,
+                ponto.tipo,
+                ponto.bairro,
+                ponto.endereco,
+                ponto.horario,
+                ponto.contato_nome,
+                ponto.contato_whats,
+                ponto.ativo,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def insert_ponto_if_missing(db_path: str, ponto: Ponto) -> None:
+    conn = _connect(db_path)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT OR IGNORE INTO pontos
+            (id, nome, tipo, bairro, endereco, horario, contato_nome, contato_whats, ativo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (
                 ponto.id,

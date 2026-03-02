@@ -4,9 +4,9 @@ import re
 import unicodedata
 from typing import Tuple
 
-from src.db import Ponto, ensure_db, upsert_ponto
+from src.db import Ponto, ensure_db, insert_ponto_if_missing, resolve_db_path
 
-DB_PATH = "data/doacao.db"
+DB_PATH = resolve_db_path()
 
 RAW = """
 Prédio Sede da PJF – Av. Brasil, 2001 – térreo
@@ -155,7 +155,8 @@ def main() -> None:
             contato_whats=contato_padrao_whats,
             ativo=1,
         )
-        upsert_ponto(DB_PATH, ponto)
+        # Preserva qualquer ajuste feito por administradores no banco local.
+        insert_ponto_if_missing(DB_PATH, ponto)
 
     print(f"Importados/atualizados: {len(linhas)} pontos oficiais em {DB_PATH}")
 

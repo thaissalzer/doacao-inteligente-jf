@@ -3,11 +3,15 @@ from __future__ import annotations
 import streamlit as st
 import secrets
 from typing import Optional
+from streamlit.errors import StreamlitSecretNotFoundError
 
 
 def _get_secret_password() -> Optional[str]:
     # Defina em .streamlit/secrets.toml: ADMIN_PASSWORD="sua_senha"
-    return st.secrets.get("ADMIN_PASSWORD", None)
+    try:
+        return st.secrets.get("ADMIN_PASSWORD", None)
+    except StreamlitSecretNotFoundError:
+        return None
 
 
 def is_admin_logged_in() -> bool:
