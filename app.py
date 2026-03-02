@@ -1,5 +1,6 @@
 import streamlit as st
 from src.db import ensure_db, seed_if_empty
+from scripts.import_pontos_oficiais import main as import_oficiais
 
 
 def _go_to(page_path: str) -> None:
@@ -24,7 +25,7 @@ def main() -> None:
 
     db_path = "data/doacao.db"
     ensure_db(db_path)
-    seed_if_empty(db_path)
+    import_oficiais()
 
     st.title("🌧️ Doação Inteligente JF")
     st.subheader("Direcionando solidariedade com eficiência.")
