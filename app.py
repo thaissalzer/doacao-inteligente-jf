@@ -190,8 +190,8 @@ section[data-testid="stSidebar"] *{
 
 def _sidebar() -> None:
     with st.sidebar:
-        st.markdown('<div class="sidebar-title">🌧️ Doação Inteligente JF</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sidebar-sub">Direcionando solidariedade com eficiência em Juiz de Fora.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">🌧️ Doação Inteligente para JF</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-sub">Direcionando solidariedade DE TODO O BRASIL com eficiência em Juiz de Fora.</div>', unsafe_allow_html=True)
 
         st.markdown('<div class="sidebar-chip">📍 Pontos • 🔴 URGENTE • ⏰ Atualizações</div>', unsafe_allow_html=True)
         st.divider()
