@@ -232,24 +232,28 @@ def main() -> None:
 
     st.markdown("")
 
-    # CTAs
-    col1, col2, col3 = st.columns([1, 1, 2])
-    with col1:
-        if st.button("📍 Ver pontos e necessidades", use_container_width=True):
-            _go_to("pages/1_Pontos.py")
-    with col2:
-        if st.button("🔐 Área Admin", use_container_width=True):
-            _go_to("pages/2_Admin.py")
-    with col3:
-        st.caption("Ou use o menu à esquerda: **Pontos** / **Admin**.")
+# CTAs (padrão único, sem duplicar)
+col1, col2, col3 = st.columns([1, 1, 2])
 
-    # Atalhos (fallback estável)
+with col1:
+    if st.button("📍 Ver pontos e necessidades", use_container_width=True):
+        _go_to("pages/1_Pontos.py")
+
+with col2:
+    if st.button("🔐 Área Admin", use_container_width=True):
+        _go_to("pages/2_Admin.py")
+
+with col3:
+    st.caption("Ou use o menu à esquerda: **Pontos** / **Admin**.")
+
+# ✅ Fallback: só mostra links se não existir switch_page
+if not callable(getattr(st, "switch_page", None)):
+    st.caption("Atalhos (fallback):")
     c1, c2 = st.columns(2)
     with c1:
         st.page_link("pages/1_Pontos.py", label="📍 Ir para Pontos", icon="📍")
     with c2:
         st.page_link("pages/2_Admin.py", label="🔐 Ir para Admin", icon="🔐")
-
     st.markdown("")
     _dev_banner()
 
