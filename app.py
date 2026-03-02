@@ -1,5 +1,5 @@
 import streamlit as st
-from src.db import ensure_db, seed_if_empty
+from src.db import ensure_db
 from scripts.import_pontos_oficiais import main as import_oficiais
 
 
@@ -16,6 +16,78 @@ def _go_to(page_path: str) -> None:
         st.warning("Seu Streamlit não suporta navegação por botão. Use os links no menu lateral.")
 
 
+def _dev_banner() -> None:
+    """Banner 'É Desenvolvedor?' com botão para o GitHub (estilo similar à imagem)."""
+    st.markdown(
+        """
+<style>
+.dev-banner {
+  background: linear-gradient(180deg, #0b1324 0%, #0a162b 100%);
+  border-radius: 18px;
+  padding: 22px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+}
+.dev-left h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+}
+.dev-left p {
+  color: rgba(255,255,255,0.72);
+  margin: 8px 0 0 0;
+  font-size: 16px;
+  line-height: 1.35;
+  max-width: 880px;
+}
+.dev-meta {
+  margin-top: 10px;
+  color: rgba(255,255,255,0.70);
+  font-size: 14px;
+}
+.dev-meta strong { color: rgba(255,255,255,0.92); }
+.dev-right a {
+  background: #47d1c6;
+  color: #06211f;
+  text-decoration: none;
+  font-weight: 800;
+  padding: 12px 18px;
+  border-radius: 14px;
+  display: inline-block;
+  white-space: nowrap;
+}
+.dev-right a:hover { filter: brightness(0.95); }
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .dev-banner { flex-direction: column; align-items: flex-start; }
+  .dev-right a { width: 100%; text-align: center; }
+}
+</style>
+
+<div class="dev-banner">
+  <div class="dev-left">
+    <h2>É Desenvolvedor?</h2>
+    <p>Toda ajuda é bem-vinda. Nosso código é aberto. Ajude a acelerar o desenvolvimento dessa ferramenta vital para JF.</p>
+    <div class="dev-meta">
+      <strong>Desenvolvedora:</strong> Thais Salzer Procópio • <strong>@thais_salzer</strong>
+    </div>
+  </div>
+  <div class="dev-right">
+    <a href="https://github.com/thaissalzer/doacao-inteligente-jf" target="_blank" rel="noopener noreferrer">
+      Contribuir no GitHub
+    </a>
+  </div>
+</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     st.set_page_config(
         page_title="Doação Inteligente JF",
@@ -25,7 +97,10 @@ def main() -> None:
 
     db_path = "data/doacao.db"
     ensure_db(db_path)
-    import_oficiais()
+    try:
+        import_oficiais()
+    except Exception:
+        pass
 
     st.title("🌧️ Doação Inteligente JF")
     st.subheader("Direcionando solidariedade com eficiência.")
@@ -66,32 +141,8 @@ ajudar você a saber exatamente **o que doar** e **onde doar**.
 
     st.divider()
 
-    st.markdown("### 🎯 Como funciona")
-    st.markdown(
-        """
-Reunimos informações diretamente dos pontos de arrecadação e abrigos ativos e organizamos:
-
-- 📍 Localização do ponto  
-- 📦 Itens necessários no momento  
-- 🚫 Itens com estoque suficiente  
-- ⏰ Data e horário da última atualização  
-
-Assim, evitamos desperdícios e promovemos um melhor direcionamento das doações.
-        """
-    )
-
-    st.markdown("### 🤝 Nosso compromisso")
-    st.markdown(
-        """
-- Transparência nas informações divulgadas  
-- Atualizações frequentes  
-- Clareza sobre a origem dos dados  
-- Foco na eficiência da ajuda  
-
-A Doação Inteligente JF não substitui os pontos de arrecadação ou a Defesa Civil.  
-Nosso papel é conectar informação e solidariedade.
-        """
-    )
+    # ✅ Substitui as seções antigas pelo banner de contribuição
+    _dev_banner()
 
     st.info("💡 Dica: na página **Pontos**, use os filtros para ver só o que está **URGENTE** e foi atualizado recentemente.")
 
