@@ -33,6 +33,25 @@ Shopping Alameda - R. Morais e Castro, 300 - Passos, Juiz de Fora - MG
 Salvaterra Restaurante - Avenida Deusdedith Salgado, 4735, Salvaterra
 Praça de pedágio de Simão Pereira, km 819, BR-040
 Sesc Mesa Brasil - Rua Carlos Chagas, 100, São Mateus
+
+Escola Municipal Raymundo Hargreaves - Rua Luiz Fávero, 383, Bom Jardim
+Escola Municipal Amélia Pires - Rua Itatiaia, 570, Monte Castelo
+Escola Municipal Aurea Bicalho - Rua Odilon Braga, nº 119 - Linhares
+Escola Municipal Dante Jaime Brochado - Rua Francisco Fontainha, 163, Santo Antônio
+Escola Municipal Gabriel Gonçalves - Rua Gabriel Coimbra, nº 240, Ipiranga
+Escola Municipal Belmira Duarte - Rua Adailton Garcia, nº 110, Bairro JK
+Escola Estadual Padre Frederico - Rua Carlos Alves, 133, Bonfim
+Escola Municipal Paulo Rogério - Rua Coronel Quintão, nº 136, Monte Castelo
+Escola Municipal Henrique José de Souza - Rua Cidade do Sol, nº 370, Cidade do Sol
+Escola Municipal Marlene Barros - Prolongamento da Rua Marumbi, nº 56 - Marumbi
+Escola Municipal Adhemar Rezende - Av. Senhor dos Passos, 1596, São Pedro
+Escola Municipal Professor Nilo Camilo Ayupe - R. Alm. Barroso, 155 - Paineiras
+Escola Municipal Fernão Dias - Rua Gustavo Fernandes Barbosa, nº 155 - Bandeirantes
+Escola Municipal Dilermando Cruz - Rua Dr. Altivo Halfeld, nº 44 - Vila Ideal
+Escola Municipal Irineu Guimarães - Rua José Zacarias dos Santos, s/nº - São Benedito
+Escola Estadual Antônio Carlos - Av. Cel. Vidal, 180 - Mariano Procópio
+Escola Municipal Antônio Carlos Fagundes - Rua Antônio Lopes Júnior, 35 - Francisco Bernardino
+Escola Municipal Amélia Mascarenhas - Rua Dr Maurício Guerra, 300, São Bernardo
 """.strip()
 
 
