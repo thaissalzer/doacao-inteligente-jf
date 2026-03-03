@@ -4,7 +4,13 @@ import re
 import unicodedata
 from typing import Tuple
 
-from src.db import Ponto, ensure_db, insert_ponto_if_missing, resolve_db_path
+from src.db import (
+    Ponto,
+    ensure_db,
+    insert_ponto_if_missing,
+    list_existing_ponto_ids,
+    resolve_db_path,
+)
 
 DB_PATH = resolve_db_path()
 
@@ -140,25 +146,32 @@ def main() -> None:
     horario_padrao = "—"
 
     linhas = [l.strip() for l in RAW.splitlines() if l.strip()]
+    pontos = []
     for line in linhas:
         nome, endereco, bairro = parse_line(line)
 
         ponto_id = f"oficial_{slugify(nome)}"
-        ponto = Ponto(
-            id=ponto_id,
-            nome=nome,
-            tipo="Ponto de arrecadação",
-            bairro=bairro,
-            endereco=endereco,
-            horario=horario_padrao,
-            contato_nome=contato_padrao_nome,
-            contato_whats=contato_padrao_whats,
-            ativo=1,
+        pontos.append(
+            Ponto(
+                id=ponto_id,
+                nome=nome,
+                tipo="Ponto de arrecadação",
+                bairro=bairro,
+                endereco=endereco,
+                horario=horario_padrao,
+                contato_nome=contato_padrao_nome,
+                contato_whats=contato_padrao_whats,
+                ativo=1,
+            )
         )
+
+    existing_ids = list_existing_ponto_ids(DB_PATH, [p.id for p in pontos])
+    novos = [p for p in pontos if p.id not in existing_ids]
+    for ponto in novos:
         # Preserva qualquer ajuste feito por administradores no banco local.
         insert_ponto_if_missing(DB_PATH, ponto)
 
-    print(f"Importados/atualizados: {len(linhas)} pontos oficiais em {DB_PATH}")
+    print(f"Importados/atualizados: {len(novos)} novos pontos oficiais em {DB_PATH}")
 
 
 if __name__ == "__main__":

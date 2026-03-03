@@ -40,7 +40,11 @@ def _connect(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path, check_same_thread=False, timeout=30)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
-    conn.execute("PRAGMA journal_mode = WAL;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except sqlite3.OperationalError:
+        # Alguns filesystems gerenciados nao suportam WAL; cai para o modo padrao.
+        pass
     conn.execute("PRAGMA synchronous = NORMAL;")
     conn.execute("PRAGMA busy_timeout = 30000;")
     return conn
@@ -235,6 +239,25 @@ def insert_ponto_if_missing(db_path: str, ponto: Ponto) -> None:
             ),
         )
         conn.commit()
+    finally:
+        conn.close()
+
+
+def list_existing_ponto_ids(db_path: str, ponto_ids: Sequence[str]) -> set[str]:
+    if not ponto_ids:
+        return set()
+
+    conn = _connect(db_path)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"""
+            SELECT id FROM pontos
+            WHERE id IN ({",".join(["?"] * len(ponto_ids))});
+            """,
+            tuple(ponto_ids),
+        )
+        return {str(row["id"]) for row in cur.fetchall()}
     finally:
         conn.close()
 
