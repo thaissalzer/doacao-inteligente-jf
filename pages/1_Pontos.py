@@ -60,7 +60,7 @@ def _inject_page_css() -> None:
   margin: 0;
   font-size: 22px;
   font-weight: 900;
-  color: #f8fafc;
+  color: #0f2a4a;
 }
 .point-sub {
   margin: 2px 0 10px 0;
