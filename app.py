@@ -1,6 +1,14 @@
 import streamlit as st
-from src.db import ensure_db, resolve_db_path
+from src.db import ensure_db
 from scripts.import_pontos_oficiais import main as import_oficiais
+
+try:
+    from src.db import resolve_db_path
+except ImportError:
+    from src.db import DEFAULT_DB_PATH
+
+    def resolve_db_path(db_path=None):
+        return db_path or DEFAULT_DB_PATH
 
 
 def _go_to(page_path: str) -> None:

@@ -8,8 +8,14 @@ from src.db import (
     upsert_ponto,
     add_necessidade,
     set_ponto_ativo,
-    resolve_db_path,
 )
+try:
+    from src.db import resolve_db_path
+except ImportError:
+    from src.db import DEFAULT_DB_PATH
+
+    def resolve_db_path(db_path=None):
+        return db_path or DEFAULT_DB_PATH
 from scripts.import_pontos_oficiais import main as import_oficiais
 
 

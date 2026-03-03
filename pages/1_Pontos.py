@@ -6,8 +6,14 @@ from src.db import (
     list_necessidades,
     last_update_for_ponto,
     get_ponto,
-    resolve_db_path,
 )
+try:
+    from src.db import resolve_db_path
+except ImportError:
+    from src.db import DEFAULT_DB_PATH
+
+    def resolve_db_path(db_path=None):
+        return db_path or DEFAULT_DB_PATH
 from src.ui import (
     badge_status,
     human_hours_ago,

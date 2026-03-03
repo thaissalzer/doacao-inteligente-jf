@@ -9,8 +9,14 @@ from src.db import (
     ensure_db,
     insert_ponto_if_missing,
     list_existing_ponto_ids,
-    resolve_db_path,
 )
+try:
+    from src.db import resolve_db_path
+except ImportError:
+    from src.db import DEFAULT_DB_PATH
+
+    def resolve_db_path(db_path=None):
+        return db_path or DEFAULT_DB_PATH
 
 DB_PATH = resolve_db_path()
 
