@@ -183,12 +183,55 @@ section[data-testid="stSidebar"] *{
 }
 .dev-right a:hover { filter: brightness(0.95); }
 
+/* CTA principal: ver pontos */
+div[data-testid="stButton"] > button[kind="primary"] {
+  background: linear-gradient(180deg, #fb7185 0%, #ef4444 100%);
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  border-radius: 14px;
+  min-height: 82px;
+  font-size: 19px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+div[data-testid="stButton"] > button[kind="primary"]::before {
+  content: "";
+  width: 74px;
+  height: 74px;
+  flex: 0 0 74px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='38%25' r='72%25'%3E%3Cstop offset='0%25' stop-color='%232d3a46'/%3E%3Cstop offset='100%25' stop-color='%23070b11'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='70' cy='70' r='67' fill='%23d1d5db'/%3E%3Ccircle cx='70' cy='70' r='58' fill='%23f59e0b'/%3E%3Ccircle cx='70' cy='70' r='50' fill='url(%23g)'/%3E%3Ctext x='70' y='62' text-anchor='middle' font-size='22' font-weight='900' font-family='Arial, sans-serif' fill='%23fbbf24'%3ECLIQUE%3C/text%3E%3Ctext x='70' y='88' text-anchor='middle' font-size='22' font-weight='900' font-family='Arial, sans-serif' fill='%23f59e0b'%3EAQUI!%3C/text%3E%3C/svg%3E");
+}
+div[data-testid="stButton"] > button[kind="primary"]:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 12px 26px rgba(220, 38, 38, 0.34);
+}
+
 /* Responsivo */
 @media (max-width: 920px) {
   .hero h1 { font-size: 40px; }
   .cards { grid-template-columns: 1fr; }
   .dev-banner { flex-direction: column; align-items: flex-start; }
   .dev-right a { width: 100%; text-align: center; }
+  div[data-testid="stButton"] > button[kind="primary"] {
+    min-height: 68px;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+  }
+  div[data-testid="stButton"] > button[kind="primary"]::before {
+    width: 50px;
+    height: 50px;
+    flex-basis: 50px;
+  }
 }
 </style>
         """,
@@ -300,9 +343,9 @@ def main() -> None:
     st.markdown("")
 
     # CTAs
-    col1, col2, col3 = st.columns([1, 1, 2])
+    col1, col2, col3 = st.columns([2, 1, 1])
     with col1:
-        if st.button("📍 Ver pontos e necessidades", use_container_width=True):
+        if st.button("VER PONTOS E NECESSIDADES", use_container_width=True, type="primary"):
             _go_to("pages/1_Pontos.py")
     with col2:
         if st.button("🔐 Área Admin", use_container_width=True):
