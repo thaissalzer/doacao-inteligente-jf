@@ -213,7 +213,7 @@ def main() -> None:
             st.write(f"- {badge_status(n.status)} • **{n.categoria}**: {n.item}{extra} _(atualizado: {n.updated_at})_")
 
     st.divider()
-    st.markdown("## Lista de Pontos de Doação e Necessidades")
+    st.markdown("## Últimas Atualizações de Necessidades em Pontos de Doação")
 
     col_a, col_b, col_c = st.columns(3)
     with col_a:
