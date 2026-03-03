@@ -103,7 +103,7 @@ def _human_last_update(updated_at_iso: str | None) -> str:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Pontos - Doacao Inteligente JF", page_icon="📍", layout="wide")
+    st.set_page_config(page_title="Pontos - Doação Inteligente JF", page_icon="📍", layout="wide")
     _inject_page_css()
 
     db_path = resolve_db_path()
@@ -119,7 +119,7 @@ def main() -> None:
     st.markdown(
         """
 <div class="pontos-hero">
-  <h2>Pontos de doacao e necessidades</h2>
+  <h2>Lista de Pontos de Doação e Necessidades</h2>
   <p>Veja o que esta mais urgente, escolha o ponto certo e direcione sua ajuda com mais eficiencia.</p>
 </div>
         """,
@@ -187,6 +187,33 @@ def main() -> None:
         return (-urg, -pre, upd_score, ponto.nome.lower())
 
     pontos_filtrados.sort(key=ranking_key)
+
+    st.markdown("## Detalhe de um ponto")
+    ponto_map = {f"{p.nome} - {p.bairro}": p.id for p in pontos}
+    escolha = st.selectbox("Escolha um ponto para ver detalhes", list(ponto_map.keys()))
+    ponto_id = ponto_map[escolha]
+
+    ponto = get_ponto(db_path, ponto_id)
+    if not ponto:
+        st.error("Ponto nao encontrado.")
+        return
+
+    st.markdown(f"### {ponto.nome}")
+    st.caption(f"{ponto.tipo} • {ponto.bairro}")
+    st.write(f"📍 **Endereco:** {ponto.endereco}")
+    st.write(f"🕒 **Horario:** {ponto.horario}")
+
+    det_nec = list_necessidades(db_path, ponto_ids=[ponto_id], categoria="Todas", status="Todos")
+    if not det_nec:
+        st.info("Ainda nao ha itens cadastrados para este ponto.")
+    else:
+        st.markdown("#### Itens cadastrados")
+        for n in det_nec:
+            extra = f" - {n.observacao}" if n.observacao else ""
+            st.write(f"- {badge_status(n.status)} • **{n.categoria}**: {n.item}{extra} _(atualizado: {n.updated_at})_")
+
+    st.divider()
+    st.markdown("## Lista de Pontos de Doação e Necessidades")
 
     col_a, col_b, col_c = st.columns(3)
     with col_a:
@@ -273,33 +300,6 @@ def main() -> None:
 
             to_copy = [f"{badge_status(n.status)} • {n.categoria}: {n.item}" for n in (urgentes + precisa)]
             copyable_list(to_copy, title="Copiar lista (URGENTE + PRECISA)")
-
-    st.divider()
-    st.markdown("## Detalhe de um ponto")
-
-    ponto_map = {f"{p.nome} - {p.bairro}": p.id for p in pontos}
-    escolha = st.selectbox("Escolha um ponto para ver detalhes", list(ponto_map.keys()))
-    ponto_id = ponto_map[escolha]
-
-    ponto = get_ponto(db_path, ponto_id)
-    if not ponto:
-        st.error("Ponto nao encontrado.")
-        return
-
-    st.markdown(f"### {ponto.nome}")
-    st.caption(f"{ponto.tipo} • {ponto.bairro}")
-    st.write(f"📍 **Endereco:** {ponto.endereco}")
-    st.write(f"🕒 **Horario:** {ponto.horario}")
-
-    det_nec = list_necessidades(db_path, ponto_ids=[ponto_id], categoria="Todas", status="Todos")
-    if not det_nec:
-        st.info("Ainda nao ha itens cadastrados para este ponto.")
-        return
-
-    st.markdown("#### Itens cadastrados")
-    for n in det_nec:
-        extra = f" - {n.observacao}" if n.observacao else ""
-        st.write(f"- {badge_status(n.status)} • **{n.categoria}**: {n.item}{extra} _(atualizado: {n.updated_at})_")
 
 
 main()
